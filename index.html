@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Form Validation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+
+    .error {
+      color: red;
+      font-size: 0.9em;
+    }
+
+    .success {
+      color: green;
+      font-size: 1em;
+      margin-top: 15px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Registration Form</h2>
+  <form id="registrationForm" novalidate>
+
+    <label>Full Name:
+      <input type="text" id="name" name="name" />
+      <span class="error" id="nameError"></span>
+    </label>
+
+    <label>Email:
+      <input type="email" id="email" name="email" />
+      <span class="error" id="emailError"></span>
+    </label>
+
+    <label>Password:
+      <input type="password" id="password" name="password" />
+      <span class="error" id="passwordError"></span>
+    </label>
+
+    <label>Confirm Password:
+      <input type="password" id="confirmPassword" name="confirmPassword" />
+      <span class="error" id="confirmPasswordError"></span>
+    </label>
+
+    <label>Phone Number:
+      <input type="text" id="phone" name="phone" />
+      <span class="error" id="phoneError"></span>
+    </label>
+
+    <label>Age:
+      <input type="number" id="age" name="age" />
+      <span class="error" id="ageError"></span>
+    </label>
+
+    <label>Gender:
+      <input type="radio" name="gender" value="male"> Male
+      <input type="radio" name="gender" value="female"> Female
+      <input type="radio" name="gender" value="other"> Other
+      <span class="error" id="genderError"></span>
+    </label>
+
+    <label>Country:
+      <select id="country" name="country">
+        <option value="">-- Select Country --</option>
+        <option value="us">United States</option>
+        <option value="uk">United Kingdom</option>
+        <option value="in">India</option>
+        <option value="other">Other</option>
+      </select>
+      <span class="error" id="countryError"></span>
+    </label>
+
+    <label>
+      <input type="checkbox" id="terms" name="terms" />
+      I agree to the terms and conditions
+      <span class="error" id="termsError"></span>
+    </label>
+
+    <button type="submit">Submit</button>
+    <div class="success" id="successMessage"></div>
+  </form>
+
+  <script>
+    const form = document.getElementById('registrationForm');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault(); // Prevent actual submission
+      let isValid = validateForm();
+      if (isValid) {
+        document.getElementById('successMessage').textContent = "Form submitted successfully!";
+        form.reset();
+      } else {
+        document.getElementById('successMessage').textContent = "";
+      }
+    });
+
+    function validateForm() {
+      let isValid = true;
+
+      // Helper functions
+      const setError = (id, message) => {
+        document.getElementById(id).textContent = message;
+        isValid = false;
+      };
+
+      const clearError = (id) => {
+        document.getElementById(id).textContent = "";
+      };
+
+      // Full Name
+      const name = document.getElementById('name').value.trim();
+      if (!name) {
+        setError('nameError', 'Name is required.');
+      } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+        setError('nameError', 'Name must contain only letters.');
+      } else {
+        clearError('nameError');
+      }
+
+      // Email
+      const email = document.getElementById('email').value.trim();
+      if (!email) {
+        setError('emailError', 'Email is required.');
+      } else if (!/^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+        setError('emailError', 'Invalid email format.');
+      } else {
+        clearError('emailError');
+      }
+
+      // Password
+      const password = document.getElementById('password').value;
+      if (!password) {
+        setError('passwordError', 'Password is required.');
+      } else if (password.length < 8 || !/[A-Z]/.test(password) || 
+                 !/[a-z]/.test(password) || !/[0-9]/.test(password) || 
+                 !/[!@#$%^&*]/.test(password)) {
+        setError('passwordError', 'Password must be 8+ chars with uppercase, lowercase, number, and symbol.');
+      } else {
+        clearError('passwordError');
+      }
+
+      // Confirm Password
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      if (!confirmPassword) {
+        setError('confirmPasswordError', 'Please confirm your password.');
+      } else if (password !== confirmPassword) {
+        setError('confirmPasswordError', 'Passwords do not match.');
+      } else {
+        clearError('confirmPasswordError');
+      }
+
+      // Phone
+      const phone = document.getElementById('phone').value.trim();
+      if (!phone) {
+        setError('phoneError', 'Phone number is required.');
+      } else if (!/^\d{10}$/.test(phone)) {
+        setError('phoneError', 'Enter a valid 10-digit phone number.');
+      } else {
+        clearError('phoneError');
+      }
+
+      // Age
+      const age = parseInt(document.getElementById('age').value);
+      if (!age) {
+        setError('ageError', 'Age is required.');
+      } else if (age < 18 || age > 100) {
+        setError('ageError', 'Age must be between 18 and 100.');
+      } else {
+        clearError('ageError');
+      }
+
+      // Gender
+      const gender = form.querySelector('input[name="gender"]:checked');
+      if (!gender) {
+        setError('genderError', 'Please select your gender.');
+      } else {
+        clearError('genderError');
+      }
+
+      // Country
+      const country = document.getElementById('country').value;
+      if (!country) {
+        setError('countryError', 'Please select a country.');
+      } else {
+        clearError('countryError');
+      }
+
+      // Terms
+      const terms = document.getElementById('terms').checked;
+      if (!terms) {
+        setError('termsError', 'You must agree to the terms.');
+      } else {
+        clearError('termsError');
+      }
+
+      return isValid;
+    }
+  </script>
+
+</body>
+</html>
